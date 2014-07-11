@@ -43,11 +43,11 @@ NSString *const JDStatusBarStyleDark    = @"JDStatusBarStyleDark";
 {
     // setup default style
     JDStatusBarStyle *style = [[JDStatusBarStyle alloc] init];
-    style.barColor = [UIColor whiteColor];
+    style.barColor = [UIColor colorWithRed:248.0f/255.0f green:248.0f/255.0f blue:248.0f/255.0f alpha:1.0];
     style.progressBarColor = [UIColor greenColor];
     style.progressBarHeight = 1.0;
     style.progressBarPosition = JDStatusBarProgressBarPositionBottom;
-    style.textColor = [UIColor grayColor];
+    style.textColor = [UIColor blackColor];
     style.font = [UIFont systemFontOfSize:12.0];
     style.animationType = JDStatusBarAnimationTypeMove;
     

@@ -30,6 +30,9 @@
 @property (nonatomic, weak) JDStatusBarStyle *activeStyle;
 @property (nonatomic, strong) JDStatusBarStyle *defaultStyle;
 @property (nonatomic, strong) NSMutableDictionary *userStyles;
+
+@property (nonatomic, assign) BOOL isEnabled;
+
 @end
 
 @implementation JDStatusBarNotification
@@ -126,6 +129,10 @@
     return [[JDStatusBarNotification sharedInstance] isVisible];
 }
 
++ (void)toggleStatusBarVisibility:(BOOL)isEnabled {
+    [[JDStatusBarNotification sharedInstance] toggleStatusBarVisibility:isEnabled];
+}
+
 #pragma mark Implementation
 
 - (id)init
@@ -138,6 +145,7 @@
         // register for orientation changes
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willChangeStatusBarFrame:)
                                                      name:UIApplicationWillChangeStatusBarFrameNotification object:nil];
+        _isEnabled = YES;
     }
     return self;
 }
@@ -152,7 +160,7 @@
 - (void)setupDefaultStyles;
 {
     self.defaultStyle = [JDStatusBarStyle defaultStyleWithName:JDStatusBarStyleDefault];
-
+    
     self.userStyles = [NSMutableDictionary dictionary];
     for (NSString *styleName in [JDStatusBarStyle allDefaultStyleIdentifier]) {
         [self.userStyles setObject:[JDStatusBarStyle defaultStyleWithName:styleName] forKey:styleName];
@@ -175,13 +183,18 @@
 - (UIView*)showWithStatus:(NSString *)status
                 styleName:(NSString*)styleName;
 {
-    JDStatusBarStyle *style = nil;
-    if (styleName != nil) {
-        style = self.userStyles[styleName];
+    if (self.isEnabled) {
+        JDStatusBarStyle *style = nil;
+        if (styleName != nil) {
+            style = self.userStyles[styleName];
+        }
+        
+        if (style == nil) style = self.defaultStyle;
+        return [self showWithStatus:status style:style];
     }
-    
-    if (style == nil) style = self.defaultStyle;
-    return [self showWithStatus:status style:style];
+    else {
+        return nil;
+    }
 }
 
 - (UIView*)showWithStatus:(NSString *)status
@@ -195,7 +208,7 @@
             self.topBar.transform = CGAffineTransformIdentity;
         } else {
             self.topBar.alpha = 1.0;
-            self.topBar.transform = CGAffineTransformMakeTranslation(0, -self.topBar.frame.size.height);
+            self.topBar.transform = CGAffineTransformMakeTranslation(0, self.topBar.frame.size.height);
         }
     }
     
@@ -270,12 +283,12 @@
         if (self.activeStyle.animationType == JDStatusBarAnimationTypeFade) {
             self.topBar.alpha = 0.0;
         } else {
-            self.topBar.transform = CGAffineTransformMakeTranslation(0, -self.topBar.frame.size.height);
+            self.topBar.alpha = 1.0;
+            self.topBar.transform = CGAffineTransformMakeTranslation(0, self.topBar.frame.size.height);
         }
     } completion:^(BOOL finished) {
         [self.overlayWindow removeFromSuperview];
         [self.overlayWindow setHidden:YES];
-        _overlayWindow.rootViewController = nil;        
         _overlayWindow = nil;
         _progressView = nil;
         _topBar = nil;
@@ -404,22 +417,31 @@
     return (_topBar != nil);
 }
 
+- (void)toggleStatusBarVisibility:(BOOL)isEnabled {
+    self.isEnabled = isEnabled;
+    
+    if (!isEnabled) {
+        [self dismissAnimated:NO];
+    }
+}
+
 #pragma mark Lazy views
 
 - (UIWindow *)overlayWindow;
 {
     if(_overlayWindow == nil) {
-        _overlayWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        _overlayWindow = [[UIWindow alloc] initWithFrame:[[UIApplication sharedApplication] statusBarFrame]];
         _overlayWindow.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _overlayWindow.backgroundColor = [UIColor clearColor];
         _overlayWindow.userInteractionEnabled = NO;
         _overlayWindow.windowLevel = UIWindowLevelStatusBar;
         _overlayWindow.rootViewController = [[JDStatusBarNotificationViewController alloc] init];
         _overlayWindow.rootViewController.view.backgroundColor = [UIColor clearColor];
+        _overlayWindow.clipsToBounds = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 70000 // only when deployment target is < ios7
         _overlayWindow.rootViewController.wantsFullScreenLayout = YES;
 #endif
-        [self updateWindowTransform];
+        //        [self updateWindowTransform];
         [self updateTopBarFrameWithStatusBarFrame:[[UIApplication sharedApplication] statusBarFrame]];
     }
     return _overlayWindow;
@@ -464,7 +486,7 @@
 {
     CGFloat width = MAX(rect.size.width, rect.size.height);
     CGFloat height = MIN(rect.size.width, rect.size.height);
-
+    
     // on ios7 fix position, if statusBar has double height
     CGFloat yPos = 0;
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0 && height > 20.0) {
@@ -538,4 +560,3 @@
 }
 
 @end
-

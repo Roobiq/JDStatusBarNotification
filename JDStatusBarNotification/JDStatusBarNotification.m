@@ -541,10 +541,10 @@
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
                                          duration:(NSTimeInterval)duration {
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [super willAnimateRotationToInterfaceOrientation:interfaceOrientation duration:duration];
     
     if ([UIApplication sharedApplication].statusBarHidden) {
-        [self dismissAnimated:NO]
+        [JDStatusBarNotification dismissAnimated:NO];
     }
 }
 

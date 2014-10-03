@@ -537,6 +537,17 @@
     return nil;
 }
 
+// prevent appearance if status bar isn't visible
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+                                         duration:(NSTimeInterval)duration {
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
+    if ([UIApplication sharedApplication].statusBarHidden) {
+        [self dismissAnimated:NO]
+    }
+}
+
 // rotation
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {

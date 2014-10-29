@@ -1,6 +1,6 @@
 # JDStatusBarNotification
 
-Show messages on top of the status bar. Customizable colors, font and animation. Supports progress display and can show an activity indicator. iOS 7 ready. iOS6 support. Please open a [Github issue], if you think anything is missing or wrong.
+Show messages on top of the status bar. Customizable colors, font and animation. Supports progress display and can show an activity indicator. iOS 7/8 ready. iOS6 support. Please open a [Github issue], if you think anything is missing or wrong.
 
 ![Animation](gfx/animation.gif "Animation")
 
@@ -69,7 +69,7 @@ To present a notification using a custom style, use the `identifier` you specifi
 
 ### Beware
 
-@goelv [informed me](https://github.com/jaydee3/JDStatusBarNotification/issues/15), that his app got rejected because of a status bar overlay (for violating 10.1/10.3). So don't overuse it. Although this is the first case I heard of. I even shipped an App myself using this class. It had no problems.
+[@goelv](https://github.com/goelv) / [@dskyu](https://github.com/dskyu) informed me (see [#15](https://github.com/jaydee3/JDStatusBarNotification/issues/15), [#30](https://github.com/jaydee3/JDStatusBarNotification/issues/30)), that his app got rejected because of a status bar overlay (for violating 10.1/10.3). So don't overuse it. Although I haven't heard of any other cases.
 
 ## Customization
 
